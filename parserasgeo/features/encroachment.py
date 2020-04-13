@@ -6,16 +6,26 @@ This is to be read using ParseRASProject
 from .tools import fl_int
 
 class EncroachmentNode(object):
-	"""
-	An encroachment node that houses the node id, method, left station, and 
-	right station
-	"""
+    """
+    An encroachment node that houses the node id, method, left station, and 
+    right station
+    """
 
-	def __init__(self, node_id, method, left_station, right_station):
-		self.node_id = node_id
-		self.method = method
-		self.left_station = left_station
-		self.right_station = right_station
+    def __init__(self, node_id, method, left_station, right_station):
+        self.node_id = node_id
+        self.method = method
+        self.left_station = left_station
+        self.right_station = right_station
+
+    def __str__(self):
+        s = ''
+        s += 'Encroach Node={}\n'.format(self.node_id.ljust(8))
+        s += str(self.method).rjust(8)
+        s += str(self.left_station).rjust(8)
+        s += str(self.right_station).rjust(8)
+
+        return s
+
 
 
 class Encroachments(object):
@@ -47,10 +57,9 @@ class Encroachments(object):
         # reach name
         line = line[15:]
         self.reach = line.strip()
+        line = next(proj_file)
         
-
         while line[:13] == 'Encroach Node':
-            line = next(proj_file)
             node_id = line[14:].strip()
             line = next(proj_file)
             values = line.split()
@@ -59,22 +68,20 @@ class Encroachments(object):
             right_station = fl_int(values[2])
             temp_node = EncroachmentNode(node_id, method, left_station, right_station)
             self.nodes.append(temp_node)
+            line = next(proj_file)
 
         return line
 
     def __str__(self):
-    	s = ''
-    	s += 'Encroach River={}\n'.format(self.river.ljust(16))
-    	s += 'Encroach Reach={}\n'.format(self.reach.ljust(16))
+        s = ''
+        s += 'Encroach River={}\n'.format(self.river.ljust(16))
+        s += 'Encroach Reach={}\n'.format(self.reach.ljust(16))
 
-    	for node in self.nodes:
-    		s += 'Encroach Node={}\n'.format(node.node_id.ljust(8))
-    		s += str(node.method).rjust(8)
-    		s += str(node.left_station).rjust(8)
-    		s += str(node.right_station).rjust(8)
-    		s += '\n'
+        for node in self.nodes:
+            s += str(node)
+            s += '\n'
 
-    	return s
+        return s
 
 if __name__ == '__main__':
     in_prof_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/SecondCreekFHAD-.p01'
@@ -87,5 +94,3 @@ if __name__ == '__main__':
                 print(test)
                 break
 
-    with open('test.txt', 'wt') as out:
-        out.write(test)

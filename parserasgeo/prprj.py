@@ -24,8 +24,13 @@ class ParseRASProject(object):
                     self.plan_title = line.split('=')[1]
                 elif Encroachments.test(line):
                     encroachment = Encroachments()
-                    encroachment.import_proj(line, pr_file)
+                    
+                    # import_proj returns the next line, which needs to be saved and
+                    # added to the project list so that it can be written to the 
+                    # out file
+                    line_after = encroachment.import_proj(line, pr_file)
                     self.proj_list.append(encroachment)
+                    self.proj_list.append(line_after)
                 else:
                     self.proj_list.append(line)
 
@@ -59,6 +64,10 @@ if __name__ == '__main__':
 
     proj = ParseRASProject(in_proj_file)
     encroachments = proj.return_encroachments()
+
+    for l in encroachments:
+    	print(len(l.nodes))
+    	print(l)
 
     out_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/test_out/test.p01'
 
