@@ -29,6 +29,25 @@ class ParseRASProfile(object):
 	def return_encroachments(self):
 		to_return = []
 		for e in self.prof_list:
-			if e.__name__ == 'Encroachments':
+			if isinstance(e, Encroachments):
 				to_return.append(e)
 		return to_return
+
+	def write(self, out_profile_file_name):
+		'''
+		Write the profile file to an output file
+		'''
+
+		with open(out_profile_file_name, 'wt') as outfile:
+			for line in self.prof_list:
+				outfile.write(line)
+
+if __name__ == '__main__':
+	in_prof_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/SecondCreekFHAD-.p01'
+
+	prof = ParseRASProfile(in_prof_file)
+	encroachments = prof.return_encroachments()
+
+	print(len(encroachments))
+	for l in encroachments:
+		print(l)

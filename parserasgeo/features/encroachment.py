@@ -1,7 +1,9 @@
 """
-The encroachments are read from the profile file, not the geo file
-This is to be read using ParseRASProfile
+The encroachments are read from the project file, not the geo file
+This is to be read using ParseRASProject
 """
+
+from .tools import fl_int
 
 class EncroachmentNode(object):
 	"""
@@ -21,43 +23,44 @@ class Encroachments(object):
     Class encroachment
     """
     def __init__(self):
-    	self.river = None
-    	self.reach = None
-    	# node id, method, left station, right station
+        self.river = None
+        self.reach = None
+        # node id, method, left station, right station
         self.nodes = []
 
+    @staticmethod
     def test(line):
-        if line[:13] == 'Encroach River':
+        if line[:14] == 'Encroach River':
             return True
         else:
             return False
 
-    def import_prof(self, line, prof_file):
+    def import_proj(self, line, proj_file):
         '''
-        Imports the encroachment data from the profile file
+        Imports the encroachment data from the project file
         '''
         # river name
         line = line[15:]
         self.river = line
-        line = next(prof_file)
+        line = next(proj_file)
 
         # reach name
         line = line[15:]
         self.reach = line
-        line = next(prof_file)
+        line = next(proj_file)
 
-        while line[:12] == 'Encroach Node':
+        while line[:13] == 'Encroach Node':
         	node_id = line[14:]
-        	next(line)
+        	line = next(proj_file)
         	values = line.split()
         	method = values[0]
         	left_station = fl_int(values[1])
         	right_station = fl_int(values[2])
         	temp_node = EncroachmentNode(node_id, method, left_station, right_station)
-        	self.nodes.append(EncroachmentNode)
-        	line = next(prof_file)
+        	self.nodes.append(temp_node)
+        	line = next(proj_file)
 
-        return next(prof_file)
+        return next(proj_file)
 
     def __str__(self):
     	s = ''
@@ -65,11 +68,21 @@ class Encroachments(object):
     	s += 'Encroach Reach={}\n'.format(self.reach)
 
     	for node in self.nodes:
-    		s += 'Encroach Node={}\n'.format(node[0])
-    		s += str(node[1]).rjust(8)
-    		s += str(node[2]).rjust(8)
-    		s += str(node[3]).rjust(8)
+    		s += 'Encroach Node={}\n'.format(node.node_id)
+    		s += str(node.method).rjust(8)
+    		s += str(node.left_station).rjust(8)
+    		s += str(node.right_station).rjust(8)
     		s += '\n'
 
     	return s
-	
+
+if __name__ == '__main__':
+    in_prof_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/SecondCreekFHAD-.p01'
+
+    test = Encroachments()
+    with open(in_prof_file, 'rt') as in_file:
+        for line in in_file:
+            if test.test(line):
+                test.import_proj(line, in_file)
+                print(test)
+                break
