@@ -49,8 +49,9 @@ class ParseRASProject(object):
         '''
 
         with open(out_project_file_name, 'wt') as outfile:
+            outfile.write('Plan Title={}'.format(self.plan_title))
             for line in self.proj_list:
-                outfile.write(line)
+                outfile.write(str(line))
 
 
 if __name__ == '__main__':
@@ -59,4 +60,6 @@ if __name__ == '__main__':
     proj = ParseRASProject(in_proj_file)
     encroachments = proj.return_encroachments()
 
+    out_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/test_out/test.p01'
 
+    proj.write(out_file)

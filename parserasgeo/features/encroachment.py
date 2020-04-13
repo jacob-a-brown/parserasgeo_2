@@ -41,34 +41,34 @@ class Encroachments(object):
         '''
         # river name
         line = line[15:]
-        self.river = line
+        self.river = line.strip()
         line = next(proj_file)
 
         # reach name
         line = line[15:]
-        self.reach = line
-        line = next(proj_file)
+        self.reach = line.strip()
+        
 
         while line[:13] == 'Encroach Node':
-        	node_id = line[14:]
-        	line = next(proj_file)
-        	values = line.split()
-        	method = values[0]
-        	left_station = fl_int(values[1])
-        	right_station = fl_int(values[2])
-        	temp_node = EncroachmentNode(node_id, method, left_station, right_station)
-        	self.nodes.append(temp_node)
-        	line = next(proj_file)
+            line = next(proj_file)
+            node_id = line[14:].strip()
+            line = next(proj_file)
+            values = line.split()
+            method = values[0]
+            left_station = fl_int(values[1])
+            right_station = fl_int(values[2])
+            temp_node = EncroachmentNode(node_id, method, left_station, right_station)
+            self.nodes.append(temp_node)
 
-        return next(proj_file)
+        return line
 
     def __str__(self):
     	s = ''
-    	s += 'Encroach River={}\n'.format(self.river)
-    	s += 'Encroach Reach={}\n'.format(self.reach)
+    	s += 'Encroach River={}\n'.format(self.river.ljust(16))
+    	s += 'Encroach Reach={}\n'.format(self.reach.ljust(16))
 
     	for node in self.nodes:
-    		s += 'Encroach Node={}\n'.format(node.node_id)
+    		s += 'Encroach Node={}\n'.format(node.node_id.ljust(8))
     		s += str(node.method).rjust(8)
     		s += str(node.left_station).rjust(8)
     		s += str(node.right_station).rjust(8)
@@ -86,3 +86,6 @@ if __name__ == '__main__':
                 test.import_proj(line, in_file)
                 print(test)
                 break
+
+    with open('test.txt', 'wt') as out:
+        out.write(test)
