@@ -1,6 +1,6 @@
 """
-The encroachments are read from the project file, not the geo file
-This is to be read using ParseRASProject
+The encroachments are read from the plan file, not the geo file
+This is to be read using ParseRASPlan
 """
 
 from .tools import fl_int
@@ -45,30 +45,30 @@ class Encroachments(object):
         else:
             return False
 
-    def import_proj(self, line, proj_file):
+    def import_plan(self, line, plan_file):
         '''
-        Imports the encroachment data from the project file
+        Imports the encroachment data from the plan file
         '''
         # river name
         line = line[15:]
         self.river = line.strip()
-        line = next(proj_file)
+        line = next(plan_file)
 
         # reach name
         line = line[15:]
         self.reach = line.strip()
-        line = next(proj_file)
+        line = next(plan_file)
         
         while line[:13] == 'Encroach Node':
             node_id = line[14:].strip()
-            line = next(proj_file)
+            line = next(plan_file)
             values = line.split()
             method = values[0]
             left_station = fl_int(values[1])
             right_station = fl_int(values[2])
             temp_node = EncroachmentNode(node_id, method, left_station, right_station)
             self.nodes.append(temp_node)
-            line = next(proj_file)
+            line = next(plan_file)
 
         return line
 
@@ -87,10 +87,10 @@ if __name__ == '__main__':
     in_prof_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/SecondCreekFHAD-.p01'
 
     test = Encroachments()
-    with open(in_prof_file, 'rt') as in_file:
+    with open(in_plan_file, 'rt') as in_file:
         for line in in_file:
             if test.test(line):
-                test.import_proj(line, in_file)
+                test.import_plan(line, in_file)
                 print(test)
                 break
 

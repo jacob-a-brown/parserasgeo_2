@@ -7,6 +7,8 @@ Parses very basic information from a RAS plan file.
 
 """
 
+from .features import Encroachments
+
 class ParseRASPlan(object):
     def __init__(self, plan_filename):
         self.plan_title = None   # Full plan name
@@ -14,24 +16,40 @@ class ParseRASPlan(object):
         self.geo_file = None     # geometry file extension: g01, g02, ..
         self.plan_file = None    # plan file extension: f01, f02, ..
 
-        with open(plan_filename, 'rt') as plan_file:
-            for line in plan_file:
-                fields = line[:-1].split('=')  # Strip the newline and split by =
+        # list of the lines in the plan file
+        # stored either as strings or custom classes
+        self.plan_list = []
 
-                # lookout for lines missing =
-                if len(fields) == 1:
-                    continue
-                var = fields[0]
-                value = fields[1]
+        with open(plan_filename, 'rt') as in_file:
+            for line in in_file:
+                if line.split('=')[0] == 'Plan Title':
+                    self.plan_title = line.split('=')[1]
+                    self.plan_list.append(self.plan_title)
+                
+                elif line.split('=')[0] == 'Short Identifier':
+                    self.plan_id = line.split('=')[0]
+                    self.plan_list.append(self.plan_title)
+                
+                elif line.split('=')[0] == 'Geom File':
+                    self.geo_file = line.split('=')[0]
+                    self.plan_list.append(self.geo_file)
 
-                if var == 'Geom File':
-                    self.geo_file = value
-                elif var == 'Flow File':
-                    self.plan_file = value
-                elif var == 'Plan Title':
-                    self.plan_title = value
-                elif var == 'Short Identifier':
-                    self.plan_id = value
+                elif line.split('=')[0] == 'Flow File':
+                    self.flow_file = line.split('=')[0]
+                    self.plan_list.append(self.flow_file)
+
+                elif Encroachments.test(line):
+                    encroachment = Encroachments()
+
+                    # import_plan returns the next line, which needs to be saved and
+                    # added to the plan list so that it can be written to the 
+                    # out file
+                    line_after = encroachment.import_plan(line, in_file)
+                    self.plan_list.append(encroachment)
+                    self.plan_list.append(line_after)
+                else:
+                    self.plan_list.append(line)
+
 
     def __str__(self):
         s = 'Plan Title='+self.plan_title+'\n'
@@ -39,6 +57,25 @@ class ParseRASPlan(object):
         s += 'Geom File='+self.geo_file+'\n'
         s += 'Flow File='+self.plan_file+'\n'
         return s
+
+    def write(self, out_plan_file_name):
+        '''
+        Write the plan file to an output file
+        '''
+
+        with open(out_plan_file_name, 'wt') as outfile:
+            for line in self.plan_list:
+                outfile.write(str(line))
+
+    def return_encroachments(self):
+        '''
+        Returns the Encroachments found in the plan file
+        '''
+        to_return = []
+        for e in self.plan_list:
+            if isinstance(e, Encroachments):
+                to_return.append(e)
+        return to_return
 
 def main():
     import sys

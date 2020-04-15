@@ -201,10 +201,10 @@ class ParseRASGeo(object):
         wanted_reach = reach
         wanted_node_id = node_id
         
-        if node_type.__name__ is 'CrossSection':
+        if node_type.__name__ == 'CrossSection':
             node_name = 'XS'
             NodeNotFound = CrossSectionNotFound
-        if node_type.__name__ is 'Culvert':
+        if node_type.__name__ == 'Culvert':
             node_name = 'culvert'
             NodeNotFound = CulvertNotFound
         
@@ -224,7 +224,7 @@ class ParseRASGeo(object):
                 test_reach = item.reach
                 
                 # TODO: get rid of if-else statements after changing xs_id to station in cross_section.py
-                if node_type.__name__ is 'CrossSection':
+                if node_type.__name__ == 'CrossSection':
                     test_node_id = item.header.xs_id
                 else:
                     test_node_id = item.header.station
