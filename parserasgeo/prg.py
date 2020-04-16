@@ -257,12 +257,13 @@ class ParseRASGeo(object):
 
 
 def main():
-    infile = '../geos/3rd_test.g01'
+    infile = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Model/SecondCreekFHAD-.g01'
     geo = ParseRASGeo(infile)
 
-    cross_sections = geo.extract_xs()
+    cross_sections = geo.extract_all_xs()
     for xs in cross_sections:
-        print(xs)
+    	if xs.header.xs_id == 400205:
+	        print(xs)
 
 if __name__ == '__main__':
     main()

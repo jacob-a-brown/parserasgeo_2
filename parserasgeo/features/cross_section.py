@@ -116,17 +116,28 @@ class Header(object):
     def import_geo(self, line, geo_file):
         fields = line[23:].split(',')
         assert len(fields) == 5
-        vals = [fl_int(x) for x in fields]
         # Node type and cross section id
-        self.node_type = vals[0]
+        self.node_type = fl_int(fields[0])
         # TODO - RAS allows Xs ids to be in the format '225.20', fl_int() strips trailing zeros
         # This should be fixed at some point, but may break compatibility with other things
         # like the FHAD tools, and probably things within prg
-        self.xs_id = vals[1]
+        self.xs_id = fl_int(fields[1])
         # Reach lengths
-        self.lob_length = vals[2]
-        self.channel_length = vals[3]
-        self.rob_length = vals[4]
+        # if the cross-section is the furthest downstream, there may be no reach lengths
+        if fields[2] == '':
+            self.lob_length = fields[2]
+        else:
+            self.lob_length = fl_int(fields[2])
+
+        if fields[3] == '':
+            self.channel_length = fields[3]
+        else:
+            self.channel_length = fl_int(fields[3])
+
+        if fields[4] == '' or fields[4] == '\n':
+            self.rob_length = ''
+        else:
+            self.rob_length = fl_int(fields[4])
 
         if DEBUG:
             print('-'*30)

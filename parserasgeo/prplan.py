@@ -24,19 +24,19 @@ class ParseRASPlan(object):
             for line in in_file:
                 if line.split('=')[0] == 'Plan Title':
                     self.plan_title = line.split('=')[1]
-                    self.plan_list.append(self.plan_title)
+                    self.plan_list.append(line)
                 
                 elif line.split('=')[0] == 'Short Identifier':
-                    self.plan_id = line.split('=')[0]
-                    self.plan_list.append(self.plan_title)
+                    self.plan_id = line.split('=')[1]
+                    self.plan_list.append(line)
                 
                 elif line.split('=')[0] == 'Geom File':
-                    self.geo_file = line.split('=')[0]
-                    self.plan_list.append(self.geo_file)
+                    self.geo_file = line.split('=')[1]
+                    self.plan_list.append(line)
 
                 elif line.split('=')[0] == 'Flow File':
-                    self.flow_file = line.split('=')[0]
-                    self.plan_list.append(self.flow_file)
+                    self.flow_file = line.split('=')[1]
+                    self.plan_list.append(line)
 
                 elif Encroachments.test(line):
                     encroachment = Encroachments()
@@ -55,7 +55,7 @@ class ParseRASPlan(object):
         s = 'Plan Title='+self.plan_title+'\n'
         s += 'Short Identifier='+self.plan_id+'\n'
         s += 'Geom File='+self.geo_file+'\n'
-        s += 'Flow File='+self.plan_file+'\n'
+        s += 'Flow File='+self.flow_file+'\n'
         return s
 
     def write(self, out_plan_file_name):
