@@ -71,19 +71,27 @@ class ParseRASPlan(object):
         '''
         Returns the Encroachments found in the plan file
         '''
-        to_return = []
         for e in self.plan_list:
             if isinstance(e, Encroachments):
-                to_return.append(e)
-        return to_return
-
-def main():
-    import sys
-
-    prp = ParseRASPlan(sys.argv[1])
-    print(dir(prp))
-    print(str(prp))
-
+                return e
 
 if __name__ == '__main__':
-    main()
+    in_plan_file = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Models/EastPlumCreek/EPC_Reg_FW.p01'
+
+    plan = ParseRASPlan(in_plan_file)
+    encroachments = plan.return_encroachments()
+
+    for node in encroachments.nodes:
+        if node.node_id == '18323':
+            print(node.node_id)
+            print(node.river)
+            print(node.reach)
+        if node.node_id == '29076.44':
+            print(node.node_id)
+            print(node.river)
+            print(node.reach)
+            node.left_station = 10
+
+
+    out_file = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Models/EastPlumCreek/_test.p01'
+    plan.write(out_file)

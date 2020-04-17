@@ -11,11 +11,34 @@ class EncroachmentNode(object):
     right station
     """
 
-    def __init__(self, node_id, method, left_station, right_station):
-        self.node_id = node_id
-        self.method = method
-        self.left_station = left_station
-        self.right_station = right_station
+    def __init__(self):
+        self.node_id = None
+        self.river = None
+        self.reach = None
+        self.method = None
+        self.left_station = None
+        self.right_station = None
+
+    @staticmethod
+    def test(line):
+        '''
+        Returns True if an encroachment node is reached
+        '''
+        if line.split('=')[0] == 'Encroach Node':
+            return True
+        else:
+            return False
+
+    def import_plan(self, line, plan_file):
+        values = line.split('=')
+        self.node_id = values[1].strip()
+        line = next(plan_file)
+        values = line.split()
+        self.method = fl_int(values[0])
+        self.left_station = fl_int(values[1])
+        self.right_station = fl_int(values[2])
+
+        return line
 
     def __str__(self):
         s = ''
@@ -27,15 +50,60 @@ class EncroachmentNode(object):
         return s
 
 
+class EncroachmentReach(object):
+    '''
+    This class contains all of the encroachment nodes in a given reach
+    '''
+    def __init__(self):
+        self.name = None
+
+    @staticmethod
+    def test(line):
+        '''
+        Returns True if an encroachment reach is reached
+        '''
+        if line.split('=')[0] == 'Encroach Reach':
+            return True
+        else:
+            return False
+
+    def import_plan(self, line):
+        values = line.split('=')
+        self.name = values[1].strip()
+
+    def __str__(self):
+        return 'Encroach Reach={}'.format(self.name)
+
+class EncroachmentRiver(object):
+    '''
+    This class contains all of the encroachment reaches in a given river
+    '''
+
+    def __init__(self):
+        self.name = None
+
+    @staticmethod
+    def test(line):
+        '''
+        Returns True if an encroachment reach is reached
+        '''
+        if line.split('=')[0] == 'Encroach River':
+            return True
+        else:
+            return False
+
+    def import_plan(self, line):
+        values = line.split('=')
+        self.name = values[1].strip()
+
+    def __str__(self):
+        return 'Encroach River={}'.format(self.name)
 
 class Encroachments(object):
     """
     Class encroachment
     """
     def __init__(self):
-        self.river = None
-        self.reach = None
-        # node id, method, left station, right station
         self.nodes = []
 
     @staticmethod
@@ -49,48 +117,58 @@ class Encroachments(object):
         '''
         Imports the encroachment data from the plan file
         '''
-        # river name
-        line = line[15:]
-        self.river = line.strip()
-        line = next(plan_file)
+        while line[:8] == 'Encroach':
+            if EncroachmentRiver.test(line):
+                current_river = EncroachmentRiver()
+                current_river.import_plan(line)
+                line = next(plan_file)
 
-        # reach name
-        line = line[15:]
-        self.reach = line.strip()
-        line = next(plan_file)
-        
-        while line[:13] == 'Encroach Node':
-            node_id = line[14:].strip()
-            line = next(plan_file)
-            values = line.split()
-            method = values[0]
-            left_station = fl_int(values[1])
-            right_station = fl_int(values[2])
-            temp_node = EncroachmentNode(node_id, method, left_station, right_station)
-            self.nodes.append(temp_node)
-            line = next(plan_file)
+            elif EncroachmentReach.test(line):
+                current_reach = EncroachmentReach()
+                current_reach.import_plan(line)
+                line = next(plan_file)
+
+            elif EncroachmentNode.test(line):
+                current_node = EncroachmentNode()
+                current_node.import_plan(line, plan_file)
+                current_node.river = current_river.name
+                current_node.reach = current_reach.name
+                self.nodes.append(current_node)
+                line = next(plan_file)
 
         return line
+    
 
     def __str__(self):
         s = ''
-        s += 'Encroach River={}\n'.format(self.river.ljust(16))
-        s += 'Encroach Reach={}\n'.format(self.reach.ljust(16))
+        print_river = self.nodes[0].river
+        print_reach = self.nodes[0].reach
+        s += 'Encroach River={}\n'.format(print_river.ljust(16))
+        s += 'Encroach Reach={}\n'.format(print_reach.ljust(16))
 
         for node in self.nodes:
+            current_river = node.river
+            current_reach = node.reach
+            if current_river != print_river:
+                print_river = current_river
+                s += 'Encroach River={}\n'.format(print_river.ljust(16))
+            if current_reach != print_reach:
+                print_reach = current_reach
+                s += 'Encroach Reach={}\n'.format(print_reach.ljust(16))
+
             s += str(node)
-            s += '\n'
+            s += '\n'        
 
         return s
 
 if __name__ == '__main__':
-    in_prof_file = 'C:/C_PROJECTS/Misc/20200413_Encroachments/RAS/SecondCreekFHAD-.p01'
+    in_plan_file = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Models/SecondCreek/SecondCreekFHAD-.p01'
 
     test = Encroachments()
     with open(in_plan_file, 'rt') as in_file:
-        for line in in_file:
-            if test.test(line):
-                test.import_plan(line, in_file)
+        for l in in_file:
+            if test.test(l):
+                test.import_plan(l, in_file)
                 print(test)
                 break
 
