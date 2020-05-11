@@ -33,10 +33,18 @@ class EncroachmentNode(object):
         values = line.split('=')
         self.node_id = values[1].strip()
         line = next(plan_file)
-        values = line.split()
+        n = 8
+        values = [line[i:i+n] for i in range(0, len(line), n)]
         self.method = fl_int(values[0])
-        self.left_station = fl_int(values[1])
-        self.right_station = fl_int(values[2])
+        try:
+            self.left_station = fl_int(values[1])
+        except ValueError:
+            self.left_station = ''
+
+        try:
+            self.right_station = fl_int(values[2])
+        except ValueError:
+            self.right_station = ''
 
         return line
 
@@ -162,11 +170,12 @@ class Encroachments(object):
         return s
 
 if __name__ == '__main__':
-    in_plan_file = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Models/SecondCreek/SecondCreekFHAD-.p01'
+    in_plan_file = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Models/Modified Second Creek FHAD/Adjusting Cross Section River Station Numbers/SC_FHAD.p01'
 
     test = Encroachments()
     with open(in_plan_file, 'rt') as in_file:
         for l in in_file:
+            print(l)
             if test.test(l):
                 test.import_plan(l, in_file)
                 print(test)

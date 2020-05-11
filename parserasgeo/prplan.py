@@ -14,7 +14,7 @@ class ParseRASPlan(object):
         self.plan_title = None   # Full plan name
         self.plan_id = None      # Short id
         self.geo_file = None     # geometry file extension: g01, g02, ..
-        self.plan_file = None    # plan file extension: f01, f02, ..
+        self.flow_file = None    # plan file extension: f01, f02, ..
 
         # list of the lines in the plan file
         # stored either as strings or custom classes
@@ -23,19 +23,19 @@ class ParseRASPlan(object):
         with open(plan_filename, 'rt') as in_file:
             for line in in_file:
                 if line.split('=')[0] == 'Plan Title':
-                    self.plan_title = line.split('=')[1]
+                    self.plan_title = line.split('=')[1].strip()
                     self.plan_list.append(line)
                 
                 elif line.split('=')[0] == 'Short Identifier':
-                    self.plan_id = line.split('=')[1]
+                    self.plan_id = line.split('=')[1].strip()
                     self.plan_list.append(line)
                 
                 elif line.split('=')[0] == 'Geom File':
-                    self.geo_file = line.split('=')[1]
+                    self.geo_file = line.split('=')[1].strip()
                     self.plan_list.append(line)
 
                 elif line.split('=')[0] == 'Flow File':
-                    self.flow_file = line.split('=')[1]
+                    self.flow_file = line.split('=')[1].strip()
                     self.plan_list.append(line)
 
                 elif Encroachments.test(line):
@@ -81,6 +81,7 @@ if __name__ == '__main__':
     plan = ParseRASPlan(in_plan_file)
     encroachments = plan.return_encroachments()
 
+    '''
     for node in encroachments.nodes:
         if node.node_id == '18323':
             print(node.node_id)
@@ -91,7 +92,7 @@ if __name__ == '__main__':
             print(node.river)
             print(node.reach)
             node.left_station = 10
-
+    '''
 
     out_file = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Models/EastPlumCreek/_test.p01'
     plan.write(out_file)

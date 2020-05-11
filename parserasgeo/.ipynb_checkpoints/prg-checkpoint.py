@@ -23,7 +23,6 @@ class CulvertNotFound(Exception):
 
 class ParseRASGeo(object):
     def __init__(self, geo_filename, chatty=False, debug=False):
-        self.geo_filename = geo_filename
         # add  test for file existence
         self.geo_list = []
         num_xs = 0
