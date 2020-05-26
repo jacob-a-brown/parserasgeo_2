@@ -311,7 +311,7 @@ class CulvertGroup(object):
                 line = next(geo_file)
 
         # stop when you get to the next culvert group or are at the end of the culvert groups
-        while 'BC Design=' not in line and 'BR U' not in line and 'Culvert=' not in line and 'Multiple Barrel Culv=' not in line:
+        while 'BC Design=' not in line and 'BR U' not in line and 'BR D' not in line and 'Culvert=' not in line and 'Multiple Barrel Culv=' not in line:
             description = line.split('=')[0]
             value = line.split('=')[1]
 
