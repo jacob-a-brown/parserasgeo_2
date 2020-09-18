@@ -1,6 +1,7 @@
 from .tools import fl_int, split_by_n_str, pad_left, print_list_by_group, split_block_obs, split_by_n
 from .description import Description
 from math import sqrt, cos, radians
+import string
 
 # Global debug, this is set when initializing CrossSection
 DEBUG = False
@@ -262,7 +263,10 @@ class IEFA(object):
 
     def import_geo(self, line, geo_file):
         values = line.split(',')
-        self.num_iefa = int(values[0][-3:])
+        # remove any punctuation from the values
+        # sometimes there is a space before the comma, sometimes there isn't
+        # if there is no space, then [-3:] picks up the equals sign
+        self.num_iefa = int(values[0][-3:].strip(string.punctuation))
         self.type = int(values[1])
         line = next(geo_file)
         # Due to possible blank lines in geometry file, all data must be treated as a string
@@ -320,7 +324,10 @@ class Obstruction(object):
 
     def import_geo(self, line, geo_file):
         values = line.split(',')
-        self.num_blocked = int(values[0][-3:])
+        # remove any punctuation from the values
+        # sometimes there is a space before the comma, sometimes there isn't
+        # if there is no space, then [-3:] picks up the equals sign
+        self.num_blocked = int(values[0][-3:].strip(string.punctuation))
         self.blocked_type = int(values[1])
 
         line = next(geo_file)
