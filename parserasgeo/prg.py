@@ -258,13 +258,15 @@ class ParseRASGeo(object):
 
 
 def main():
-    infile = 'C:/C_PROJECTS/Python/EncroachmentAlterations/RAS_Model/SecondCreekFHAD-.g01'
+    from pathlib import Path
+    geo_dir = Path('C:/C_PROJECTS/Misc/20210412_FHAD_Tools_Debug/tests')
+    geo_file = 'SulphurGulch_FHAD_2020-0825.g01'
+
+    infile = geo_dir / geo_file
     geo = ParseRASGeo(infile)
 
-    cross_sections = geo.extract_all_xs()
-    for xs in cross_sections:
-    	if xs.header.xs_id == 400205:
-	        print(xs)
+    outfile = geo_dir / 'Out' / 'test_{}'.format(geo_file)
+    geo.write(outfile)
 
 if __name__ == '__main__':
     main()

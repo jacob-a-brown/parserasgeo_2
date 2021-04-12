@@ -213,7 +213,9 @@ class CulvertGroup(object):
         # upstream and downstream are stored as named tuples
         self.station_distances = list()
 
+        # for multi-barrel culverts
         self.barrel_names = list()
+        self.barrel_xy = list()
 
         self.manning_bot = None
         self.depth_manning_bot = None
@@ -310,6 +312,19 @@ class CulvertGroup(object):
 
                 line = next(geo_file)
 
+                # check to see if GIS x,y points exist. If they do, record them as x,y pairs, otherwise do nothing
+                if line.split()[0] != 'BC' and line.split()[0] != 'Culvert':
+                    xy_pairs = []
+                    xy_pair = []
+                    xy_vals = line.split()
+                    for i, val in enumerate(xy_vals, 1):
+                        xy_pair.append(float(val))
+                        if i % 2 == 0:
+                            xy_pairs.append(xy_pair)
+                            xy_pair = []
+                    self.barrel_xy.append(xy_pairs)
+                    line = next(geo_file)
+
         # stop when you get to the next culvert group or are at the end of the culvert groups
         while 'BC Design=' not in line and 'BR U' not in line and 'BR D' not in line and 'Culvert=' not in line and 'Multiple Barrel Culv=' not in line and line != '\n':
             description = line.split('=')[0]
@@ -388,7 +403,19 @@ class CulvertGroup(object):
 
             # add barrel names
             for i in range(self.num_identical_barrels):
-                s += 'BC Culvert Barrel={0},{1},0\n'.format(str(i+1), self.barrel_names[i])
+                num_xy_pairs = 0
+                barrel_xy_string = ''
+                if len(self.barrel_xy) > 0:
+                    # GIS defined x-y points for the barrels are not commonly used, but do appear from time to time
+                    barrel_xy = self.barrel_xy[i]
+                    for pair in barrel_xy:
+                        num_xy_pairs += 1
+                        for coord in pair:
+                            barrel_xy_string += str(coord).rjust(16)
+                    barrel_xy_string += '\n'
+
+                s += 'BC Culvert Barrel={0},{1},{2}\n'.format(str(i+1), self.barrel_names[i], num_xy_pairs)
+                s += barrel_xy_string
 
         # Version 4.x.x: multiple barrels
         # does not have barrel names
