@@ -260,7 +260,7 @@ class ParseRASGeo(object):
 def main():
     from pathlib import Path
     geo_dir = Path('C:/C_PROJECTS/Misc/20210412_FHAD_Tools_Debug/tests')
-    geo_file = 'SulphurGulch_FHAD_2020-0825.g01'
+    geo_file = 'SCFHAD6.g01'
 
     infile = geo_dir / geo_file
     geo = ParseRASGeo(infile)

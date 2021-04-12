@@ -1,5 +1,5 @@
 from __future__ import print_function
-from .tools import fl_int, split_by_n, print_list_by_group#  , split_by_n_str, pad_left, print_list_by_group, split_block_obs, split_by_n
+from .tools import fl_int, split_by_n, print_list_by_group, is_number#  , split_by_n_str, pad_left, print_list_by_group, split_block_obs, split_by_n
 from .description import Description
 from collections import namedtuple
 from math import ceil
@@ -313,7 +313,7 @@ class CulvertGroup(object):
                 line = next(geo_file)
 
                 # check to see if GIS x,y points exist. If they do, record them as x,y pairs, otherwise do nothing
-                if line.split()[0] != 'BC' and line.split()[0] != 'Culvert':
+                if is_number(line.split()[0]):
                     xy_pairs = []
                     xy_pair = []
                     xy_vals = line.split()

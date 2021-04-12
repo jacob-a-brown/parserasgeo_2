@@ -115,3 +115,32 @@ def pad_left(guts, pad_number):
     :return: string
     """
     return ('{:>'+str(pad_number)+'}').format(guts)
+
+def is_number(s):
+    '''
+    Checks is a string is a number, be it an integer or a float
+
+    Parameters
+    --------
+    s: str
+        the string to check
+
+    Returns
+    --------
+    boolean
+        True if a number
+    --------
+    '''
+    import sys
+
+    if sys.version_info[0] == 2:
+        s = unicode(s, 'utf-8')
+
+    if s.isnumeric():
+        return True
+    else:
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
