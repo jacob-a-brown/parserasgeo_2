@@ -9,7 +9,7 @@ mike.bannister@respec.com
 
 """
 
-from .features import CrossSection, RiverReach, Culvert, Bridge, LateralWeir, Junction
+from features import CrossSection, RiverReach, Culvert, Bridge, LateralWeir, Junction
 import os.path
 
 # TODO - create geolist object
@@ -259,13 +259,13 @@ class ParseRASGeo(object):
 
 def main():
     from pathlib import Path
-    geo_dir = Path('C:/C_PROJECTS/Misc/20210412_FHAD_Tools_Debug/tests')
-    geo_file = 'SCFHAD6.g01'
+    geo_dir = Path('C:/C_PROJECTS/Python/parserasgeo/test')
+    geo_file = 'Harvard_Gulch.g01'
 
     infile = geo_dir / geo_file
     geo = ParseRASGeo(infile)
 
-    outfile = geo_dir / 'Out' / 'test_{}'.format(geo_file)
+    outfile = geo_dir / 'test_{}'.format(geo_file)
     geo.write(outfile)
 
 if __name__ == '__main__':

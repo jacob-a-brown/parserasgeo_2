@@ -1,5 +1,6 @@
 from .tools import fl_int #  , split_by_n_str, pad_left, print_list_by_group, split_block_obs, split_by_n
 from .description import Description
+from collections import namedtuple 
 
 
 class Feature(object):
@@ -21,6 +22,124 @@ class Feature(object):
     def __str__(self):
         pass
 
+class Pier(object):
+    def __init__(self):
+        self.center_sta_us = None
+        self.center_sta_ds = None
+        self.floating_debris = None
+        self.debris_width = None
+        self.debris_height = None
+
+        self.us_pier_widths = []
+        self.us_pier_elevs = []
+        self.ds_pier_widths = []
+        self.ds_pier_elevs = []
+
+        # it's not currently known what these values are
+        # but they change from one bridge pier to the next
+        # so they need to be recorded to correctly be written
+        self.mystery_1 = None
+        self.mystery_2 = None
+        self.mystery_3 = None
+        self.mystery_4 = None
+
+    @staticmethod
+    def test(line):
+        # there are lines in bridges that are just spaces. skip those if that is the case
+        if len(line.split()) == 0:
+            return False
+        elif line.split()[0] == 'Pier':
+            return True
+        return False
+
+    def import_geo(self, line, geo_file):
+        fields = line[39:].split(',')
+        self.center_sta_us = fl_int(fields[0])
+        self.mystery_1 = fields[1]
+        self.center_sta_ds = fl_int(fields[2])
+        self.mystery_2 = fields[3]
+        self.mystery_3 = fields[4]
+        self.mystery_4 = fields[5]
+        if fl_int(fields[6]) == 0:
+            self.floating_debris = False
+        else:
+            self.floating_debris = True
+
+        if len(fields[7]) == 0:
+            self.debris_width = 0
+        else:
+            self.debris_width = fl_int(fields[7])
+
+        if fields[8] == '\n':
+            self.debris_height = 0
+        else:
+            self.debris_height = fl_int(fields[8])
+
+        # upstream pier widths
+        line = next(geo_file)
+        fields = line.split()
+        self.us_pier_widths.extend([fl_int(width) for width in fields])
+
+        # upstream pier elevations
+        line = next(geo_file)
+        fields = line.split()
+        self.us_pier_elevs.extend([fl_int(elev) for elev in fields])
+
+        # downstream pier widths
+        line = next(geo_file)
+        fields = line.split()
+        self.ds_pier_widths.extend([fl_int(width) for width in fields])
+
+        # downstream pier elevations
+        line = next(geo_file)
+        fields = line.split()
+        self.ds_pier_elevs.extend([fl_int(elev) for elev in fields])
+
+        return next(geo_file)
+
+
+    def __str__(self):
+        s = 'Pier Skew, UpSta & Num, DnSta & Num=  ,'
+        s += str(self.center_sta_us)
+        s += ',{},'.format(self.mystery_1)
+        s += str(self.center_sta_ds)
+        s += ',{},{},{},'.format(self.mystery_2, self.mystery_3, self.mystery_4)
+        if self.floating_debris is True:
+            s += ' 1 ,'
+        else:
+            s += ' 0 ,'
+
+        if self.debris_width == 0:
+            s += ','
+        else:
+            s += str(self.debris_width) + ','
+
+        if self.debris_height == 0:
+            pass
+        else:
+            s += str(self.debris_height)
+
+        s += '\n'
+
+        # upstream piers
+        for width in self.us_pier_widths:
+            s += str(width).rjust(8)
+        s += '\n'
+
+        for elev in self.us_pier_elevs:
+            s += str(elev).rjust(8)
+        s += '\n'
+
+        # downstream piers
+        for width in self.ds_pier_widths:
+            s += str(width).rjust(8)
+        s += '\n'
+
+        for elev in self.ds_pier_elevs:
+            s += str(elev).rjust(8)
+        s += '\n'
+
+        return s
 
 # TODO: possibly move header into Bridge
 class Header(object):
@@ -67,16 +186,11 @@ class Bridge(object):
         self.river = river
         self.reach = reach
 
-        # Load all cross sections parts
-#        self.cutline = CutLine()
+        # Load all bridge parts
         self.header = Header()
-        self.description = Description()
-#        self.sta_elev = StationElevation()
-#        self.iefa = IEFA()
-#        self.mannings_n = Mannings_n()
-#        self.obstruct = Obstruction()
-#        self.bank_sta = BankStation()
-        self.parts = [self.header, self.description]
+        self.pier = Pier()
+
+        self.parts = [self.header, self.pier]
 
         self.geo_list = []  # holds all parts and unknown lines (as strings)
 
@@ -103,3 +217,21 @@ class Bridge(object):
     @staticmethod
     def test(line):
         return Header.test(line)
+
+if __name__ == '__main__':
+    from pathlib import Path
+    test_dir = Path('C:/C_Projects/Python/parserasgeo/test')
+    file_path = test_dir / 'HG_bridge_test.g01'
+
+    river = 'test river'
+    reach = 'test_reach'
+
+    test = Bridge(river, reach)
+    with open(file_path, 'rt') as geo_file:
+        for line in geo_file:
+            if test.test(line):
+                test.import_geo(line, geo_file)
+                break
+
+    print(str(test))
+
