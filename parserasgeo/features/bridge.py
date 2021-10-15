@@ -1,7 +1,16 @@
 from .tools import fl_int #  , split_by_n_str, pad_left, print_list_by_group, split_block_obs, split_by_n
 from .description import Description
-from collections import namedtuple 
 
+# START NON FEATURE CLASSES
+class Width_Elev_Pair(object):
+    '''
+    This class is used to store width elevation pairs for piers
+    '''
+    def __init__(self, width, elev):
+        self.width = width
+        self.elev = elev
+
+# START FEATURE CLASSES
 
 class Feature(object):
     """
@@ -22,6 +31,11 @@ class Feature(object):
     def __str__(self):
         pass
 
+class Deck_Roadway(object):
+    def __init__(self):
+        pass
+        
+
 class Pier(object):
     def __init__(self):
         self.center_sta_us = None
@@ -30,10 +44,8 @@ class Pier(object):
         self.debris_width = None
         self.debris_height = None
 
-        self.us_pier_widths = []
-        self.us_pier_elevs = []
-        self.ds_pier_widths = []
-        self.ds_pier_elevs = []
+        self.us_piers = []
+        self.ds_piers = []
 
         # it's not currently known what these values are
         # but they change from one bridge pier to the next
@@ -75,25 +87,35 @@ class Pier(object):
         else:
             self.debris_height = fl_int(fields[8])
 
-        # upstream pier widths
+        # upstream piers
         line = next(geo_file)
         fields = line.split()
-        self.us_pier_widths.extend([fl_int(width) for width in fields])
+        us_pier_widths = [fl_int(width) for width in fields]
 
-        # upstream pier elevations
         line = next(geo_file)
         fields = line.split()
-        self.us_pier_elevs.extend([fl_int(elev) for elev in fields])
+        us_pier_elevs = [fl_int(elev) for elev in fields]
 
-        # downstream pier widths
-        line = next(geo_file)
-        fields = line.split()
-        self.ds_pier_widths.extend([fl_int(width) for width in fields])
+        for i in range(len(us_pier_widths)):
+            temp_width = us_pier_widths[i]
+            temp_elev = us_pier_elevs[i]
+            temp_width_elev = Width_Elev_Pair(temp_width, temp_elev)
+            self.us_piers.append(temp_width_elev)
 
-        # downstream pier elevations
+        # downstream peirs
         line = next(geo_file)
         fields = line.split()
-        self.ds_pier_elevs.extend([fl_int(elev) for elev in fields])
+        ds_pier_widths = [fl_int(width) for width in fields]
+
+        line = next(geo_file)
+        fields = line.split()
+        ds_pier_elevs = [fl_int(elev) for elev in fields]
+
+        for i in range(len(ds_pier_widths)):
+            temp_width = ds_pier_widths[i]
+            temp_elev = ds_pier_elevs[i]
+            temp_width_elev = Width_Elev_Pair(temp_width, temp_elev)
+            self.ds_piers.append(temp_width_elev)
 
         return next(geo_file)
 
@@ -122,20 +144,24 @@ class Pier(object):
         s += '\n'
 
         # upstream piers
-        for width in self.us_pier_widths:
+        for pier in self.us_piers:
+            width = pier.width
             s += str(width).rjust(8)
         s += '\n'
 
-        for elev in self.us_pier_elevs:
+        for pier in self.us_piers:
+            elev = pier.elev
             s += str(elev).rjust(8)
         s += '\n'
 
         # downstream piers
-        for width in self.ds_pier_widths:
+        for pier in self.ds_piers:
+            width = pier.width
             s += str(width).rjust(8)
         s += '\n'
 
-        for elev in self.ds_pier_elevs:
+        for pier in self.ds_piers:
+            elev = pier.elev
             s += str(elev).rjust(8)
         s += '\n'
 
@@ -235,3 +261,10 @@ if __name__ == '__main__':
 
     print(str(test))
 
+    for g in test.geo_list:
+        if type(g) == Pier:
+            pier = g
+            break
+
+    pier.us_piers[0].width = 5
+    print(str(test))
