@@ -9,7 +9,7 @@ mike.bannister@respec.com
 
 """
 
-from features import CrossSection, RiverReach, Culvert, Bridge, LateralWeir, Junction
+from .features import CrossSection, RiverReach, Culvert, Bridge, LateralWeir, Junction
 import os.path
 
 # TODO - create geolist object
