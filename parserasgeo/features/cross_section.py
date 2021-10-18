@@ -100,8 +100,7 @@ class Skew(object):
 # TODO: possibly move header into CrossSection
 class Header(object):
     def __init__(self):
-        # TODO: change xs_id to station
-        self.xs_id = None
+        self.station = None
         self.node_type = None
         self.lob_length = None
         self.channel_length = None
@@ -122,7 +121,7 @@ class Header(object):
         # TODO - RAS allows Xs ids to be in the format '225.20', fl_int() strips trailing zeros
         # This should be fixed at some point, but may break compatibility with other things
         # like the FHAD tools, and probably things within prg
-        self.xs_id = fl_int(fields[1])
+        self.station = fl_int(fields[1])
         # Reach lengths
         # if the cross-section is the furthest downstream, there may be no reach lengths
         if fields[2] == '':
@@ -142,14 +141,14 @@ class Header(object):
 
         if DEBUG:
             print('-'*30)
-            print('Importing XS:', self.xs_id)
+            print('Importing XS:', self.station)
 
         return next(geo_file)
 
     def __str__(self):
         s = 'Type RM Length L Ch R = '
         s += str(self.node_type) + ' ,'
-        s += '{:<8}'.format(str(self.xs_id)) + ','
+        s += '{:<8}'.format(str(self.station)) + ','
         s += str(self.lob_length) + ',' + str(self.channel_length) + ',' + str(self.rob_length) + '\n'
         return s
 

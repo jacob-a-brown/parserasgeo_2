@@ -263,11 +263,7 @@ class ParseRASGeo(object):
                 test_river = item.river
                 test_reach = item.reach
                 
-                # TODO: get rid of if-else statements after changing xs_id to station in cross_section.py
-                if node_type.__name__ == 'CrossSection':
-                    test_node_id = item.header.xs_id
-                else:
-                    test_node_id = item.header.station
+                test_node_id = item.header.station
 
                 if strip:
                     test_river = test_river.strip()
