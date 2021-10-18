@@ -21,6 +21,9 @@ class CrossSectionNotFound(Exception):
 class CulvertNotFound(Exception):
     pass
 
+class BridgeNotFound(Exception):
+    pass
+
 class ParseRASGeo(object):
     def __init__(self, geo_filename, chatty=False, debug=False):
         self.geo_filename = geo_filename
@@ -141,6 +144,36 @@ class ParseRASGeo(object):
         """
         return self._return_node(Culvert, culvert_id, river, reach, strip, rnd, digits)
 
+    def return_bridge(self, bridge_id, river, reach, strip = False, rnd = False, digits = 0):
+        '''
+        Returns matching Bridge if it is self.geo list. raises BridgeNotFound otherwise
+        
+        --------
+        Parameters
+        -------
+        bridge_id: int or float
+            bridge id number
+        river: str
+            name of river
+        reach: str
+            name of reach
+        strip: boolean
+            strips whitespace off river and reach if true
+
+        --------
+        Returns
+        --------
+        bridge object
+
+        --------
+        Raises
+        --------
+        Raises BridgeNotFound error if bridge is not in the geometry file
+        '''
+        return self._return_node(Bridge, bridge_id, river, reach, strip, rnd, digits)
+
+
+
     def extract_all_xs(self):
         """
         Returns list of all cross sections in geometry
@@ -152,6 +185,12 @@ class ParseRASGeo(object):
         Returns list of all culverts in geometry
         """
         return self._extract_all_nodes(Culvert)
+
+    def extract_all_bridges(self):
+        '''
+        Returns list of all bridges in geometry
+        '''
+        return self._extract_all_nodes(Bridge)
 
     def number_xs(self):
         """
