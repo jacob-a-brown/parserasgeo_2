@@ -526,10 +526,11 @@ class Bridge(object):
 
         # Load all bridge parts
         self.header = Header()
+        self.description = Description()
         self.pier = Pier()
         self.deck_roadway = Deck_Roadway()
 
-        self.parts = [self.header, self.deck_roadway, self.pier]
+        self.parts = [self.header, self.description, self.deck_roadway, self.pier]
 
         self.geo_list = []  # holds all parts and unknown lines (as strings)
 

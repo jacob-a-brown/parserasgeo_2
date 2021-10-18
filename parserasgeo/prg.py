@@ -100,36 +100,36 @@ class ParseRASGeo(object):
             for line in self.geo_list:
                 outfile.write(str(line))
 
-    def return_xs_by_id(self, xs_id, rnd=False, digits=0):
+    def return_xs_by_id(self, station, rnd=False, digits=0):
         """
-        Returns XS with ID xs_id. Rounds XS ids to digits decimal places if (rnd==True)
-        :param xs_id: id of cross section, assumed to be in ..... format
-        :param rnd: rounds xs_id to 'digits' if True
-        :param digits: number of digits to round xs_id to
+        Returns XS with ID station. Rounds XS ids to digits decimal places if (rnd==True)
+        :param station: id of cross section, assumed to be in ..... format
+        :param rnd: rounds station to 'digits' if True
+        :param digits: number of digits to round station to
         :return: CrossSection object
         """
         for item in self.geo_list:
             if isinstance(item, CrossSection):
                 if rnd:
-                    if round(item.header.xs_id, digits) == round(xs_id, digits):
+                    if round(item.header.station, digits) == round(station, digits):
                         return item
                 else:
-                    if item.header.xs_id == xs_id:
+                    if item.header.station == station:
                         return item
         raise CrossSectionNotFound
 
-    def return_xs(self, xs_id, river, reach, strip=False, rnd=False, digits=0):
+    def return_xs(self, station, river, reach, strip=False, rnd=False, digits=0):
         """
         returns matching CrossSection if it is in self.geo_list. raises CrossSectionNotFound otherwise
         
-        :param xs_id: cross section id number
+        :param station: cross section id number
         :param river: name of river
         :param reach: name of reach
         :param strip: strips whitespace off river and reach if true
         :return: CrossSection object
         "raises CrossSectionNotFound: raises error if xs is not in the geometry file
         """
-        return self._return_node(CrossSection, xs_id, river, reach, strip, rnd, digits)
+        return self._return_node(CrossSection, station, river, reach, strip, rnd, digits)
         
     def return_culvert(self, culvert_id, river, reach, strip=False, rnd=False, digits=0):
         """
@@ -143,6 +143,38 @@ class ParseRASGeo(object):
         :raises CulvertNotFound: raises error if culvert is not in the geometry file
         """
         return self._return_node(Culvert, culvert_id, river, reach, strip, rnd, digits)
+
+    def return_bridge_by_id(self, station, rnd = False, digits = 0):
+        '''
+        Returns bridge with ID station. Rounds bridge ids to digits decimal places if rnd == True
+
+        --------
+        Parameters
+        --------
+        station: int or float
+            the station of the bdige
+
+        rnd: boolean
+            rounds station to digits if True
+
+        digits: int
+            number of digits to round station to
+
+        --------
+        Returns
+        --------
+        Bridge object
+        '''
+
+        for item in self.geo_list:
+            if isinstance(item, Bridge):
+                if rnd:
+                    if round(item.header.station, digits) == round(station, digits):
+                        return item
+                else:
+                    if item.header.station == station:
+                        return item
+        raise BridgeNotFound
 
     def return_bridge(self, bridge_id, river, reach, strip = False, rnd = False, digits = 0):
         '''
@@ -201,17 +233,17 @@ class ParseRASGeo(object):
         xs_list = self.extract_all_xs()
         return len(xs_list)
 
-    def is_xs_duplicate(self, xs_id):
+    def is_xs_duplicate(self, station):
         """
         Checks for duplicate cross sections in geo_list
-        rasises CrossSectionNotFound if xs_id is not found
+        rasises CrossSectionNotFound if station is not found
         :param geo_list: from import_ras_geo
         :return: True if duplicate
         """
         xs_list = self.extract_xs(self.geo_list)
         count = 0
         for xs in xs_list:
-            if xs.xs_id == xs_id:
+            if xs.station == station:
                 count += 1
         if count > 1:
             return True
@@ -247,6 +279,9 @@ class ParseRASGeo(object):
         if node_type.__name__ == 'Culvert':
             node_name = 'culvert'
             NodeNotFound = CulvertNotFound
+        if node_type.__name__ == 'Bridge':
+            node_name = 'bridge'
+            NodeNotFound = BridgeNotFound
         
         if strip:
             if type(river) is not str and type(river) is not unicode:
