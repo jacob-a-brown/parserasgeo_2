@@ -370,7 +370,7 @@ class Pier(object):
         # pier skew exists
         if line[:10] == 'Pier Skew=':
             fields = line.split('=')
-            self.pier_skew = fields[1]
+            self.pier_skew = fl_int(fields[1])
             line = next(geo_file)
 
         fields = line[39:].split(',')
