@@ -561,13 +561,14 @@ class CrossSection(object):
                 self.mannings_n.values.insert(leftward_index, manning_insert)
         
         # do not pull the n-value at the right bank because that defines the n-values to the right of the bank
-        self.channel_n = [x for x in self.mannings_n.values if (x[0] >= self.bank_sta.left and x[0] <self.bank_sta.right)]        
+        self.channel_n = [x for x in self.mannings_n.values if (x[0] >= self.bank_sta.left and x[0] < self.bank_sta.right)]        
             
-    def alter_channel_n(self, scalar):
+    def alter_channel_n(self, scalar, n_to_skip = None):
         """
         Alters the channel n-values by a scaling factor
         
         :param scalar: a number by which the channel n values are scaled
+        :param n_to_skip: a list of n values to not alter. Does nothing if None
         :returns: None
         :raises ChannelNError: raises error if channel_n not defined
         """
@@ -575,9 +576,13 @@ class CrossSection(object):
         if self.channel_n is not None:
             new_channel_n = []
             for n in self.channel_n:
-                temp_n = n[1]*scalar
-                temp_tuple = (n[0], temp_n, 0)
-                new_channel_n.append(temp_tuple)
+                if n_to_skip is not None and n[1] in n_to_skip:
+                    new_channel_n.append(n)
+                    pass
+                else:
+                    temp_n = n[1]*scalar
+                    temp_tuple = (n[0], temp_n, 0)
+                    new_channel_n.append(temp_tuple)
             
             for ind, old_n in enumerate(self.mannings_n.values):
                 for new_n in new_channel_n:
@@ -590,11 +595,12 @@ class CrossSection(object):
         else:
             raise ChannelNError('The channel is undefined. Run define_channel_n before using alter_channel_n')
             
-    def alter_overbank_n(self, scalar):
+    def alter_overbank_n(self, scalar, n_to_skip = None):
         """
         Alters the overbank n-values by a scaling factor.
         
         :param scalar: a number by which the channel n values are scaled
+        :param n_to_skip: a list of n values to not alter. Does nothing if None
         :raises ChannelNError: raises error if channel_n not defined
         """
         
@@ -606,8 +612,12 @@ class CrossSection(object):
             if old_n[0] in channel_n_stations:
                 pass
             else:
-                temp_n = old_n[1]*scalar
-                temp_tuple = (old_n[0], temp_n, 0)
+                if n_to_skip is not None and old_n[1] in n_to_skip:
+                    temp_tuple = old_n
+                    pass
+                else:
+                    temp_n = old_n[1]*scalar
+                    temp_tuple = (old_n[0], temp_n, 0)
                 self.mannings_n.values.pop(ind)
                 self.mannings_n.values.insert(ind, temp_tuple)
 
