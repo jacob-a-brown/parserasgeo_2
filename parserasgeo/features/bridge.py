@@ -336,7 +336,10 @@ class Deck_Roadway(object):
 
         return s
 
-
+# THERE IS A KNOWN BUG WHERE ONLY BRIDGES WITH 1 PIER CAN BE READ AND EDITED
+# IF THERE IS MORE THAN ONE PIER, THE PROGRAM CRASHSES
+# AS SUCH, PIERS ARE CURRENTLY NOT GOING TO BE READ INTO BRIDGES
+# NEEDS A FIX IN THE FUTURE
 class Pier(object):
     def __init__(self):
         self.pier_skew = None
@@ -530,7 +533,8 @@ class Bridge(object):
         self.pier = Pier()
         self.deck_roadway = Deck_Roadway()
 
-        self.parts = [self.header, self.description, self.deck_roadway, self.pier]
+        #self.parts = [self.header, self.description, self.deck_roadway, self.pier]
+        self.parts = [self.header, self.description, self.deck_roadway]
 
         self.geo_list = []  # holds all parts and unknown lines (as strings)
 
