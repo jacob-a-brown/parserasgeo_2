@@ -492,19 +492,6 @@ class Pier(object):
 
         return s
 
-class Piers(object):
-    '''
-    A list of Pier objects
-    '''
-    def __init__(self):
-        self.piers = []
-
-    def __str__(self):
-        s = ''
-        for p in self.piers:
-            s + str(p)
-        return s
-
 # TODO: possibly move header into Bridge
 class Header(object):
     def __init__(self):
