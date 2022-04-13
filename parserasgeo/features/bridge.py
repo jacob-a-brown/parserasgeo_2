@@ -1,5 +1,6 @@
 from .tools import fl_int #  , split_by_n_str, pad_left, print_list_by_group, split_block_obs, split_by_n
 from .description import Description
+import sys
 
 # START NON FEATURE CLASSES
 class Width_Elev_Pair(object):
@@ -336,10 +337,7 @@ class Deck_Roadway(object):
 
         return s
 
-# THERE IS A KNOWN BUG WHERE ONLY BRIDGES WITH 1 PIER CAN BE READ AND EDITED
-# IF THERE IS MORE THAN ONE PIER, THE PROGRAM CRASHSES
-# AS SUCH, PIERS ARE CURRENTLY NOT GOING TO BE READ INTO BRIDGES
-# NEEDS A FIX IN THE FUTURE
+# piers are stored in a list because there may be multiple piers in every bridge
 class Pier(object):
     def __init__(self):
         self.pier_skew = None
@@ -400,11 +398,19 @@ class Pier(object):
 
         # upstream piers
         line = next(geo_file)
-        fields = line.split()
+        # if there are 8 characeters or more in a number it breaks
+        # break the fields up by 8 characters, then turn them to numbers
+        # same goes for downstream piers
+        fields = [line[i:i+8] for i in range(0, len(line), 8)]
+        if fields[-1] == '\n':
+            fields.pop()
+
         us_pier_widths = [fl_int(width) for width in fields]
 
         line = next(geo_file)
-        fields = line.split()
+        fields = [line[i:i+8] for i in range(0, len(line), 8)]
+        if fields[-1] == '\n':
+            fields.pop()
         us_pier_elevs = [fl_int(elev) for elev in fields]
 
         for i in range(len(us_pier_widths)):
@@ -415,11 +421,15 @@ class Pier(object):
 
         # downstream peirs
         line = next(geo_file)
-        fields = line.split()
+        fields = [line[i:i+8] for i in range(0, len(line), 8)]
+        if fields[-1] == '\n':
+            fields.pop()
         ds_pier_widths = [fl_int(width) for width in fields]
 
         line = next(geo_file)
-        fields = line.split()
+        fields = [line[i:i+8] for i in range(0, len(line), 8)]
+        if fields[-1] == '\n':
+            fields.pop()
         ds_pier_elevs = [fl_int(elev) for elev in fields]
 
         for i in range(len(ds_pier_widths)):
@@ -482,6 +492,19 @@ class Pier(object):
 
         return s
 
+class Piers(object):
+    '''
+    A list of Pier objects
+    '''
+    def __init__(self):
+        self.piers = []
+
+    def __str__(self):
+        s = ''
+        for p in self.piers:
+            s + str(p)
+        return s
+
 # TODO: possibly move header into Bridge
 class Header(object):
     def __init__(self):
@@ -530,22 +553,31 @@ class Bridge(object):
         # Load all bridge parts
         self.header = Header()
         self.description = Description()
-        self.pier = Pier()
+        self.piers = [] # there can be multiple piers. they should be stored in a list
         self.deck_roadway = Deck_Roadway()
 
-        #self.parts = [self.header, self.description, self.deck_roadway, self.pier]
-        self.parts = [self.header, self.description, self.deck_roadway]
+
+        self.parts = [self.header, self.description, self.deck_roadway, Pier()]
+        #self.parts = [self.header, self.description, self.deck_roadway]
 
         self.geo_list = []  # holds all parts and unknown lines (as strings)
 
     def import_geo(self, line, geo_file):
         while line != '\n':
+            print(line)
             for part in self.parts:
                 if part.test(line):
-                    # print str(type(part))+' found!'
+                    #print(str(type(part))+' found!')
+                    #print('*'*20 + '\n' + line + '*'*20 + '\n')
                     line = part.import_geo(line, geo_file)
                     self.parts.remove(part)
                     self.geo_list.append(part)
+
+                    if 'Pier' in str(type(part)):
+                        #print(part)
+                        self.piers.append(part)
+                        self.parts.append(Pier())
+                    
                     break
             else:  # Unknown line, add as text
                 self.geo_list.append(line)
@@ -565,7 +597,7 @@ class Bridge(object):
 if __name__ == '__main__':
     from pathlib import Path
     test_dir = Path('C:/C_Projects/Python/parserasgeo/test')
-    file_path = test_dir / 'HG_bridge_test.g01'
+    file_path = test_dir / 'CC_pier_test.g01'
 
     river = 'test river'
     reach = 'test_reach'
@@ -574,17 +606,20 @@ if __name__ == '__main__':
     with open(file_path, 'rt') as geo_file:
         for line in geo_file:
             if test.test(line):
+                #print(line)
                 test.import_geo(line, geo_file)
                 break
 
-    print(str(test))
+    #print(str(test))
 
-    '''
-    for g in test.geo_list:
-        if type(g) == Pier:
-            pier = g
-            break
+    piers = test.piers
+    for p in piers:
+        print(p)
+        pass
 
-    pier.us_piers[0].width = 5
-    print(str(test))
-    '''
+    piers[0].center_sta_us = 555
+
+    print(piers[0])
+
+    print(test)
+

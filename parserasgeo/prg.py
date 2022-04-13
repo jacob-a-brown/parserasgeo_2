@@ -330,7 +330,7 @@ class ParseRASGeo(object):
 def main():
     from pathlib import Path
     geo_dir = Path('C:/C_PROJECTS/Python/parserasgeo/test')
-    geo_file = 'Harvard_Gulch.g01'
+    geo_file = 'CC_New_FHAD.g01'
 
     infile = geo_dir / geo_file
     geo = ParseRASGeo(infile)
