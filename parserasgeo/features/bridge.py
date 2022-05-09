@@ -117,7 +117,7 @@ class Deck_Roadway(object):
 
         # only applicable for ogee shaped weirs
         if self.weir_crest_shape == 'ogee':
-            print(self.weir_crest_shape)
+            #print(self.weir_crest_shape)
             self.spill_approach_height = fl_int(fields[12])
             self.design_energy_head = fl_int(fields[13])
 
@@ -551,7 +551,7 @@ class Bridge(object):
 
     def import_geo(self, line, geo_file):
         while line != '\n':
-            print(line)
+            #print(line)
             for part in self.parts:
                 if part.test(line):
                     #print(str(type(part))+' found!')
@@ -597,16 +597,9 @@ if __name__ == '__main__':
                 test.import_geo(line, geo_file)
                 break
 
-    #print(str(test))
+    pier_to_change = test.piers[0]
+    pier_to_change.center_sta_us = 555.5
 
-    piers = test.piers
-    for p in piers:
-        print(p)
-        pass
-
-    piers[0].center_sta_us = 555
-
-    print(piers[0])
-
-    print(test)
-
+    with open(test_dir / 'test_out.g01', 'wt') as t:
+        for l in test.geo_list:
+            t.write(str(l))
